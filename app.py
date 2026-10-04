@@ -10,6 +10,7 @@ import sqlite3
 from flask import Flask, g, jsonify, request, send_from_directory
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, "static")
 
 # Vercel serverless functions have a read-only filesystem except for /tmp
 if os.environ.get("VERCEL"):
@@ -23,7 +24,7 @@ PRIORITIES = ("Low", "Medium", "High")
 TICKET_STATUSES = ("Open", "In Progress", "Resolved")
 TAG_PATTERN = re.compile(r"^[A-Z0-9]+(-[A-Z0-9]+)+$")
 
-app = Flask(__name__, static_folder="static", static_url_path="/static")
+app = Flask(__name__, static_folder=STATIC_DIR, static_url_path="/static")
 app.config["DATABASE"] = DB_PATH
 
 
@@ -101,7 +102,7 @@ def init_db():
     db.close()
 
 
-# Initialize database automatically when the app is loaded
+# Initialize database automatically when the app is imported/loaded in serverless
 init_db()
 
 
@@ -132,7 +133,7 @@ def clean(value, limit=60):
 # ------------------------------------------------------------------ routes
 @app.get("/")
 def index():
-    return send_from_directory(app.static_folder, "index.html")
+    return send_from_directory(STATIC_DIR, "index.html")
 
 
 @app.get("/api/assets")
