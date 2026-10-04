@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Codic Desk - Asset & IT Ticket Portal</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.383.0/dist/umd/lucide.min.js"></script>
+<style>
+  body { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  .tab-btn[aria-selected="true"] { color:#4338ca; border-color:#4f46e5; }
+  :focus-visible { outline: 2px solid #4f46e5; outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce){ * { transition:none !important; } }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+
+<header class="bg-white border-b border-slate-200">
+  <div class="max-w-6xl mx-auto px-4 py-4 flex items-center gap-3">
+    <div class="h-10 w-10 rounded-lg bg-indigo-600 text-white flex items-center justify-center"><i data-lucide="server-cog" class="h-5 w-5"></i></div>
+    <div>
+      <h1 class="text-lg font-semibold leading-tight">Codic Technologies - Internal IT Operations Portal <span class="text-slate-400 font-normal">(v1.0)</span></h1>
+      <p class="text-sm text-slate-500">Codic Desk: hardware assets and IT support tickets</p>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 py-6 space-y-6">
+  <section aria-label="Summary" class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="metrics"></section>
+
+  <div class="bg-white border border-slate-200 rounded-xl">
+    <div role="tablist" aria-label="Portal sections" class="flex overflow-x-auto border-b border-slate-200 px-2">
+      <button role="tab" id="tab-inventory" aria-controls="panel-inventory" aria-selected="true" data-tab="inventory" class="tab-btn px-4 py-3 text-sm font-medium text-slate-500 border-b-2 border-transparent whitespace-nowrap hover:text-slate-800">Hardware Inventory</button>
+      <button role="tab" id="tab-helpdesk" aria-controls="panel-helpdesk" aria-selected="false" data-tab="helpdesk" class="tab-btn px-4 py-3 text-sm font-medium text-slate-500 border-b-2 border-transparent whitespace-nowrap hover:text-slate-800">IT Support Helpdesk</button>
+      <button role="tab" id="tab-departments" aria-controls="panel-departments" aria-selected="false" data-tab="departments" class="tab-btn px-4 py-3 text-sm font-medium text-slate-500 border-b-2 border-transparent whitespace-nowrap hover:text-slate-800">Department Overview</button>
+    </div>
+
+    <!-- Inventory -->
+    <div role="tabpanel" id="panel-inventory" aria-labelledby="tab-inventory" class="p-4">
+      <div class="flex flex-col md:flex-row gap-3 md:items-center mb-4">
+        <div class="relative flex-1">
+          <i data-lucide="search" class="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input id="asset-search" type="search" placeholder="Search by asset name, tag, or employee" aria-label="Search assets" class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg">
+        </div>
+        <select id="asset-dept" aria-label="Filter by department" class="text-sm border border-slate-300 rounded-lg px-3 py-2 bg-white">
+          <option value="All">All departments</option><option>Engineering</option><option>HR</option><option>Sales</option><option>Design</option>
+        </select>
+        <button id="btn-new-asset" class="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg"><i data-lucide="plus" class="h-4 w-4"></i>Register New Asset</button>
+      </div>
+      <div class="overflow-x-auto border border-slate-200 rounded-lg">
+        <table class="w-full text-sm text-left">
+          <thead class="bg-slate-50 text-slate-600"><tr>
+            <th class="px-4 py-3 font-medium">Tag</th><th class="px-4 py-3 font-medium">Item Name</th><th class="px-4 py-3 font-medium">Category</th>
+            <th class="px-4 py-3 font-medium">Assigned Employee</th><th class="px-4 py-3 font-medium">Department</th><th class="px-4 py-3 font-medium">Status</th><th class="px-4 py-3 font-medium text-right">Actions</th>
+          </tr></thead>
+          <tbody id="asset-body" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Helpdesk -->
+    <div role="tabpanel" id="panel-helpdesk" aria-labelledby="tab-helpdesk" class="p-4 hidden">
+      <div class="flex items-center justify-between mb-4">
+        <p class="text-sm text-slate-500">Update a ticket's status directly from the table.</p>
+        <button id="btn-new-ticket" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg"><i data-lucide="life-buoy" class="h-4 w-4"></i>Raise Ticket</button>
+      </div>
+      <div class="overflow-x-auto border border-slate-200 rounded-lg">
+        <table class="w-full text-sm text-left">
+          <thead class="bg-slate-50 text-slate-600"><tr>
+            <th class="px-4 py-3 font-medium">Ticket ID</th><th class="px-4 py-3 font-medium">Issue Summary</th><th class="px-4 py-3 font-medium">Requester</th><th class="px-4 py-3 font-medium">Linked Asset</th>
+            <th class="px-4 py-3 font-medium">Priority</th><th class="px-4 py-3 font-medium">Status</th><th class="px-4 py-3 font-medium">Update Status</th>
+          </tr></thead>
+          <tbody id="ticket-body" class="divide-y divide-slate-100"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Departments -->
+    <div role="tabpanel" id="panel-departments" aria-labelledby="tab-departments" class="p-4 hidden">
+      <div id="dept-grid" class="grid sm:grid-cols-2 gap-4"></div>
+    </div>
+  </div>
+</main>
+
+<footer class="text-center text-xs text-slate-400 pb-8">Codic Technologies internship project (frontend: HTML/Tailwind/JS, backend: Python/Flask). Data is stored in a SQLite database by the Python (Flask) backend.</footer>
+
+<!-- Asset modal -->
+<div id="modal-asset" class="fixed inset-0 z-40 hidden items-center justify-center p-4 bg-slate-900/50" role="dialog" aria-modal="true" aria-labelledby="asset-title">
+  <form id="form-asset" class="bg-white rounded-xl w-full max-w-md p-6 shadow-xl space-y-4" novalidate>
+    <h2 id="asset-title" class="text-lg font-semibold">Register New Asset</h2>
+    <div><label class="block text-sm font-medium mb-1" for="a-name">Asset Name</label><input id="a-name" maxlength="60" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="e.g. ThinkPad T14"></div>
+    <div class="grid grid-cols-2 gap-3">
+      <div><label class="block text-sm font-medium mb-1" for="a-cat">Category</label><select id="a-cat" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white"><option>Laptop</option><option>Monitor</option><option>Keyboard</option><option>Mouse</option></select></div>
+      <div><label class="block text-sm font-medium mb-1" for="a-dept">Department</label><select id="a-dept" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white"><option>Engineering</option><option>HR</option><option>Sales</option><option>Design</option></select></div>
+    </div>
+    <div><label class="block text-sm font-medium mb-1" for="a-tag">Asset Tag</label><input id="a-tag" maxlength="20" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm uppercase" placeholder="e.g. CODIC-LP-104"></div>
+    <div><label class="block text-sm font-medium mb-1" for="a-emp">Assigned Employee <span class="text-slate-400 font-normal">(leave blank to keep in storage)</span></label><input id="a-emp" maxlength="60" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="e.g. Riya Sharma"></div>
+    <p id="asset-error" class="text-sm text-rose-600 hidden" role="alert"></p>
+    <div class="flex justify-end gap-2 pt-2">
+      <button type="button" data-close class="px-4 py-2 text-sm rounded-lg border border-slate-300 hover:bg-slate-50">Cancel</button>
+      <button type="submit" class="px-4 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium">Save asset</button>
+    </div>
+  </form>
+</div>
+
+<!-- Ticket modal -->
+<div id="modal-ticket" class="fixed inset-0 z-40 hidden items-center justify-center p-4 bg-slate-900/50" role="dialog" aria-modal="true" aria-labelledby="ticket-title">
+  <form id="form-ticket" class="bg-white rounded-xl w-full max-w-md p-6 shadow-xl space-y-4" novalidate>
+    <h2 id="ticket-title" class="text-lg font-semibold">Raise Ticket</h2>
+    <div><label class="block text-sm font-medium mb-1" for="t-req">Requester Name</label><input id="t-req" maxlength="60" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="e.g. Aman Verma"></div>
+    <div class="grid grid-cols-2 gap-3">
+      <div><label class="block text-sm font-medium mb-1" for="t-tag">Linked Asset Tag</label><select id="t-tag" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white"></select></div>
+      <div><label class="block text-sm font-medium mb-1" for="t-pri">Priority</label><select id="t-pri" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm bg-white"><option>Low</option><option selected>Medium</option><option>High</option></select></div>
+    </div>
+    <div><label class="block text-sm font-medium mb-1" for="t-sum">Issue Summary</label><textarea id="t-sum" rows="3" maxlength="200" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm" placeholder="Describe what is going wrong"></textarea></div>
+    <p id="ticket-error" class="text-sm text-rose-600 hidden" role="alert"></p>
+    <div class="flex justify-end gap-2 pt-2">
+      <button type="button" data-close class="px-4 py-2 text-sm rounded-lg border border-slate-300 hover:bg-slate-50">Cancel</button>
+      <button type="submit" class="px-4 py-2 text-sm rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium">Submit ticket</button>
+    </div>
+  </form>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="fixed bottom-4 right-4 z-50 hidden bg-slate-900 text-white text-sm px-4 py-2 rounded-lg shadow-lg" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  'use strict';
+
+  const DEPTS = ['Engineering', 'HR', 'Sales', 'Design'];
+  const PRIORITIES = ['Low', 'Medium', 'High'];
+  const STATUSES = ['Open', 'In Progress', 'Resolved'];
+  const KEY = 'codicDesk.v1';
+
+  /* ---------- Store: state loaded from the Flask API ---------- */
+  const api = async (path, opts = {}) => {
+    let res;
+    try {
+      res = await fetch('/api' + path, Object.assign({ headers: { 'Content-Type': 'application/json' } }, opts));
+    } catch (e) { throw new Error('Cannot reach the server. Is app.py running?'); }
+    let data = null;
+    try { data = await res.json(); } catch (e) { data = null; }
+    if (!res.ok) throw new Error((data && data.error) || 'Request failed (' + res.status + ').');
+    return data;
+  };
+
+  const Store = {
+    state: { assets: [], tickets: [] },
+    async load() {
+      const [assets, tickets] = await Promise.all([api('/assets'), api('/tickets')]);
+      this.state = { assets, tickets };
+    }
+  };
+
+  /* ---------- Helpers ---------- */
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+  const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const uid = () => 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+
+  const priorityStyle = { Low: 'bg-emerald-50 text-emerald-700 ring-emerald-200', Medium: 'bg-amber-50 text-amber-700 ring-amber-200', High: 'bg-rose-50 text-rose-700 ring-rose-200' };
+  const statusStyle = { 'Open': 'bg-sky-50 text-sky-700 ring-sky-200', 'In Progress': 'bg-indigo-50 text-indigo-700 ring-indigo-200', 'Resolved': 'bg-slate-100 text-slate-600 ring-slate-200',
+                        'Assigned': 'bg-indigo-50 text-indigo-700 ring-indigo-200', 'In Storage': 'bg-slate-100 text-slate-600 ring-slate-200' };
+  const badge = (text, map) => `<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset ${map[text] || 'bg-slate-100 text-slate-600 ring-slate-200'}">${esc(text)}</span>`;
+
+  /* ---------- UI ---------- */
+  const UI = {
+    filters: { q: '', dept: 'All' },
+    toastTimer: null,
+    lastFocus: null,
+
+    icons() { try { if (window.lucide && lucide.createIcons) lucide.createIcons(); } catch (e) { /* icons are optional */ } },
+
+    toast(msg) {
+      const el = $('#toast'); if (!el) return;
+      el.textContent = msg; el.classList.remove('hidden');
+      clearTimeout(this.toastTimer);
+      this.toastTimer = setTimeout(() => el.classList.add('hidden'), 2600);
+    },
+
+    renderMetrics() {
+      const { assets, tickets } = Store.state;
+      const cards = [
+        ['Total Hardware Assets', assets.length, 'laptop', 'text-indigo-600 bg-indigo-50'],
+        ['Assets in Storage (Unassigned)', assets.filter(a => a.status === 'In Storage').length, 'package', 'text-slate-600 bg-slate-100'],
+        ['Open Support Tickets', tickets.filter(t => t.status !== 'Resolved').length, 'alert-circle', 'text-amber-600 bg-amber-50'],
+        ['Resolved Tickets', tickets.filter(t => t.status === 'Resolved').length, 'check-circle-2', 'text-emerald-600 bg-emerald-50']
+      ];
+      $('#metrics').innerHTML = cards.map(([label, n, icon, tone]) => `
+        <div class="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3">
+          <div class="h-10 w-10 rounded-lg flex items-center justify-center shrink-0 ${tone}"><i data-lucide="${icon}" class="h-5 w-5"></i></div>
+          <div><div class="text-2xl font-semibold leading-none">${n}</div><div class="text-xs text-slate-500 mt-1">${esc(label)}</div></div>
+        </div>`).join('');
+    },
+
+    renderAssets() {
+      const q = this.filters.q.trim().toLowerCase();
+      const rows = Store.state.assets.filter(a =>
+        (this.filters.dept === 'All' || a.dept === this.filters.dept) &&
+        (!q || [a.name, a.tag, a.employee].some(v => String(v || '').toLowerCase().includes(q)))
+      );
+      $('#asset-body').innerHTML = rows.length ? rows.map(a => `
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-3 font-mono text-xs text-slate-700">${esc(a.tag)}</td>
+          <td class="px-4 py-3 font-medium">${esc(a.name)}</td>
+          <td class="px-4 py-3">${esc(a.category)}</td>
+          <td class="px-4 py-3">${a.employee ? esc(a.employee) : '<span class="text-slate-400">Unassigned</span>'}</td>
+          <td class="px-4 py-3">${esc(a.dept)}</td>
+          <td class="px-4 py-3">${badge(a.status, statusStyle)}</td>
+          <td class="px-4 py-3">
+            <div class="flex justify-end gap-1">
+              <button data-action="toggle" data-id="${esc(a.id)}" class="p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-indigo-600" title="Toggle status" aria-label="Toggle status for ${esc(a.tag)}"><i data-lucide="repeat" class="h-4 w-4"></i></button>
+              <button data-action="delete" data-id="${esc(a.id)}" class="p-2 rounded-lg text-slate-500 hover:bg-rose-50 hover:text-rose-600" title="Delete asset" aria-label="Delete ${esc(a.tag)}"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+            </div>
+          </td>
+        </tr>`).join('')
+        : `<tr><td colspan="7" class="px-4 py-10 text-center text-slate-500">No assets match your filters. Try a different search or register a new asset.</td></tr>`;
+    },
+
+    renderTickets() {
+      const { tickets } = Store.state;
+      $('#ticket-body').innerHTML = tickets.length ? tickets.map(t => `
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-3 font-mono text-xs">${esc(t.id)}</td>
+          <td class="px-4 py-3 font-medium">${esc(t.summary)}</td>
+          <td class="px-4 py-3">${esc(t.requester)}</td>
+          <td class="px-4 py-3 font-mono text-xs">${t.tag ? esc(t.tag) : '<span class="text-slate-400">None</span>'}</td>
+          <td class="px-4 py-3">${badge(t.priority, priorityStyle)}</td>
+          <td class="px-4 py-3">${badge(t.status, statusStyle)}</td>
+          <td class="px-4 py-3">
+            <select data-action="ticket-status" data-id="${esc(t.id)}" aria-label="Change status of ${esc(t.id)}" class="text-xs border border-slate-300 rounded-lg px-2 py-1.5 bg-white">
+              ${STATUSES.map(s => `<option ${s === t.status ? 'selected' : ''}>${s}</option>`).join('')}
+            </select>
+          </td>
+        </tr>`).join('')
+        : `<tr><td colspan="7" class="px-4 py-10 text-center text-slate-500">No tickets yet. Use "Raise Ticket" to report a hardware issue.</td></tr>`;
+    },
+
+    renderDepartments() {
+      const { assets } = Store.state;
+      const total = assets.length;
+      $('#dept-grid').innerHTML = DEPTS.map(d => {
+        const list = assets.filter(a => a.dept === d);
+        const assigned = list.filter(a => a.status === 'Assigned').length;
+        const pct = total ? Math.round((list.length / total) * 100) : 0;
+        return `<div class="border border-slate-200 rounded-xl p-4">
+          <div class="flex items-baseline justify-between"><h3 class="font-semibold">${d}</h3><span class="text-2xl font-semibold">${list.length}</span></div>
+          <p class="text-xs text-slate-500 mt-1">${assigned} assigned, ${list.length - assigned} in storage</p>
+          <div class="mt-3 h-2 rounded-full bg-slate-100 overflow-hidden" role="progressbar" aria-label="${d} share of all assets" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}">
+            <div class="h-full bg-indigo-600 rounded-full transition-all" style="width:${pct}%"></div>
+          </div>
+          <p class="text-xs text-slate-500 mt-1">${pct}% of all assets</p>
+        </div>`;
+      }).join('');
+    },
+
+    renderAll() {
+      this.renderMetrics(); this.renderAssets(); this.renderTickets(); this.renderDepartments();
+      this.icons();
+    },
+
+    switchTab(name) {
+      $$('.tab-btn').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === name)));
+      $$('[role="tabpanel"]').forEach(p => p.classList.toggle('hidden', p.id !== 'panel-' + name));
+    },
+
+    openModal(id, focusSel) {
+      const m = $('#' + id); if (!m) return;
+      this.lastFocus = document.activeElement;
+      m.classList.remove('hidden'); m.classList.add('flex');
+      const f = $(focusSel, m); if (f) f.focus();
+    },
+
+    closeModals() {
+      $$('[role="dialog"]').forEach(m => { m.classList.add('hidden'); m.classList.remove('flex'); });
+      $$('[role="alert"]').forEach(e => e.classList.add('hidden'));
+      if (this.lastFocus && this.lastFocus.focus) this.lastFocus.focus();
+    },
+
+    showError(id, msg) { const e = $('#' + id); if (e) { e.textContent = msg; e.classList.remove('hidden'); } },
+
+    fillTagOptions() {
+      const opts = ['<option value="">No linked asset</option>']
+        .concat(Store.state.assets.map(a => `<option value="${esc(a.tag)}">${esc(a.tag)} - ${esc(a.name)}</option>`));
+      $('#t-tag').innerHTML = opts.join('');
+    }
+  };
+
+  /* ---------- Actions (each calls the backend, then reloads data) ---------- */
+  const Actions = {
+    async refresh() { await Store.load(); UI.renderAll(); },
+
+    async addAsset() {
+      const name = $('#a-name').value.trim();
+      const tag = $('#a-tag').value.trim().toUpperCase();
+      if (!name) return UI.showError('asset-error', 'Enter an asset name.');
+      if (!/^[A-Z0-9]+(-[A-Z0-9]+)+$/.test(tag)) return UI.showError('asset-error', 'Enter a tag like CODIC-LP-104 (letters, numbers, dashes).');
+      try {
+        await api('/assets', { method: 'POST', body: JSON.stringify({ name, tag, employee: $('#a-emp').value.trim(), category: $('#a-cat').value, dept: $('#a-dept').value }) });
+        UI.closeModals(); await this.refresh(); UI.toast('Asset registered.');
+      } catch (e) { UI.showError('asset-error', e.message); }
+    },
+
+    async toggleAsset(id) {
+      const a = Store.state.assets.find(x => String(x.id) === String(id)); if (!a) return;
+      let body = {};
+      if (a.status !== 'Assigned') {
+        const who = (window.prompt('Assign ' + a.tag + ' to which employee?') || '').trim();
+        if (!who) return;
+        body = { employee: who };
+      }
+      try { await api('/assets/' + a.id + '/toggle', { method: 'PATCH', body: JSON.stringify(body) }); await this.refresh(); UI.toast(a.tag + ' updated.'); }
+      catch (e) { UI.toast(e.message); }
+    },
+
+    async deleteAsset(id) {
+      const a = Store.state.assets.find(x => String(x.id) === String(id)); if (!a) return;
+      if (!window.confirm('Delete ' + a.tag + ' (' + a.name + ')? This cannot be undone.')) return;
+      try { await api('/assets/' + a.id, { method: 'DELETE' }); await this.refresh(); UI.toast('Asset deleted.'); }
+      catch (e) { UI.toast(e.message); }
+    },
+
+    async addTicket() {
+      const requester = $('#t-req').value.trim();
+      const summary = $('#t-sum').value.trim();
+      if (!requester) return UI.showError('ticket-error', 'Enter the requester name.');
+      if (summary.length < 5) return UI.showError('ticket-error', 'Describe the issue in at least 5 characters.');
+      try {
+        const t = await api('/tickets', { method: 'POST', body: JSON.stringify({ requester, summary, tag: $('#t-tag').value, priority: $('#t-pri').value }) });
+        UI.closeModals(); await this.refresh(); UI.toast(t.id + ' raised.');
+      } catch (e) { UI.showError('ticket-error', e.message); }
+    },
+
+    async setTicketStatus(id, status) {
+      try { await api('/tickets/' + encodeURIComponent(id), { method: 'PATCH', body: JSON.stringify({ status }) }); await this.refresh(); UI.toast(id + ' marked ' + status + '.'); }
+      catch (e) { UI.toast(e.message); await this.refresh().catch(() => {}); }
+    }
+  };
+
+  /* ---------- Wiring ---------- */
+  function bind() {
+    $$('.tab-btn').forEach(b => b.addEventListener('click', () => UI.switchTab(b.dataset.tab)));
+    $('#asset-search').addEventListener('input', e => { UI.filters.q = e.target.value; UI.renderAssets(); UI.icons(); });
+    $('#asset-dept').addEventListener('change', e => { UI.filters.dept = e.target.value; UI.renderAssets(); UI.icons(); });
+
+    $('#btn-new-asset').addEventListener('click', () => { $('#form-asset').reset(); UI.openModal('modal-asset', '#a-name'); });
+    $('#btn-new-ticket').addEventListener('click', () => { $('#form-ticket').reset(); UI.fillTagOptions(); UI.openModal('modal-ticket', '#t-req'); });
+
+    $('#form-asset').addEventListener('submit', e => { e.preventDefault(); Actions.addAsset(); });
+    $('#form-ticket').addEventListener('submit', e => { e.preventDefault(); Actions.addTicket(); });
+
+    $$('[role="dialog"]').forEach(m => m.addEventListener('mousedown', e => { if (e.target === m) UI.closeModals(); }));
+    $$('[data-close]').forEach(b => b.addEventListener('click', () => UI.closeModals()));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') UI.closeModals(); });
+
+    // Event delegation for table actions (rows are re-rendered often)
+    $('#asset-body').addEventListener('click', e => {
+      const btn = e.target.closest('button[data-action]'); if (!btn) return;
+      if (btn.dataset.action === 'toggle') Actions.toggleAsset(btn.dataset.id);
+      if (btn.dataset.action === 'delete') Actions.deleteAsset(btn.dataset.id);
+    });
+    $('#ticket-body').addEventListener('change', e => {
+      const sel = e.target.closest('select[data-action="ticket-status"]'); if (!sel) return;
+      Actions.setTicketStatus(sel.dataset.id, sel.value);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    bind();
+    try { await Store.load(); }
+    catch (e) { UI.toast(e.message); }
+    UI.renderAll();
+  });
+})();
+</script>
+</body>
+</html>
